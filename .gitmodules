@@ -1,0 +1,12 @@
+[submodule "utils/rbac-manager"]
+	path = utils/rbac-manager
+	url = https://github.com/FairwindsOps/rbac-manager.git
+[submodule "utils/rbac-lookup"]
+	path = utils/rbac-lookup
+	url = https://github.com/FairwindsOps/rbac-lookup.git
+[submodule "utils/kubectl-who-can"]
+	path = utils/kubectl-who-can
+	url = https://github.com/aquasecurity/kubectl-who-can.git
+[submodule "utils/rakkess"]
+	path = utils/rakkess
+	url = https://github.com/corneliusweig/rakkess.git
