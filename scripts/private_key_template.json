@@ -1,0 +1,12 @@
+{
+  "CN": "$USERNAME",
+  "names": [
+    {
+      "O": "EXAMPLE"
+    }
+  ],
+  "key": {
+    "algo": "ecdsa",
+    "size": 256
+  }
+}
