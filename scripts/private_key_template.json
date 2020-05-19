@@ -2,11 +2,11 @@
   "CN": "$USERNAME",
   "names": [
     {
-      "O": "EXAMPLE"
+      "O": "$ORG"
     }
   ],
   "key": {
-    "algo": "ecdsa",
-    "size": 256
+    "algo": "rsa",
+    "size": 2048
   }
 }

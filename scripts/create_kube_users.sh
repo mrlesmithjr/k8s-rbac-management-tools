@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
-# set -x
+set -x
 set -e
 
 SCRIPT_NAME="$(basename $0)"
 
-while getopts ":a:d:h:k:t:u:" arg; do
+while getopts ":a:d:k:o:t:u:h" arg; do
   case $arg in
   a) ACTION=$OPTARG ;;
   d) CONFIG_DIR=$OPTARG ;;
   h)
     echo "Usage:"
-    echo "      $SCRIPT_NAME -d CONFIG_DIR -k KUBECONFIG -u USERNAME"
+    echo "      $SCRIPT_NAME -a ACTION -d CONFIG_DIR -k KUBECONFIG -o ORG -t PRIVATE_KEY_TEMPLATE -u USERNAME"
     echo ""
+    echo "      \t\t-a\tAction (apply|delete)"
     echo "      \t\t-d\tDirectory to store configs"
     echo "      \t\t-h\tDisplay help"
     echo "      \t\t-k\tPath to KUBECONFIG"
+    echo "      \t\t-o\tOrg name for SSL cert"
     echo "      \t\t-t\tPath to PRIVATE_KEY_TEMPLATE"
     echo "      \t\t-u\tUSERNAME to create"
     exit 0
     ;;
   k) KUBECONFIG=$OPTARG ;;
+  o) ORG=$OPTARG ;;
   t) PRIVATE_KEY_TEMPLATE=$OPTARG ;;
   u) USERNAME=$OPTARG ;;
   \?)
@@ -29,8 +32,8 @@ while getopts ":a:d:h:k:t:u:" arg; do
   esac
 done
 
-# Ensure both -k and -u are passed
-if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[ $CONFIG_DIR != "" ]] && [[ $PRIVATE_KEY_TEMPLATE != "" ]]; then
+# Ensure all required arguments are passed
+if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[ $CONFIG_DIR != "" ]] && [[ $PRIVATE_KEY_TEMPLATE != "" ]] && [[ $ORG != "" ]]; then
   # Convert to lowercase as Kubernetes requires namespaces, etc. to be lowercase
   USERNAME=$(echo "$USERNAME" | awk '{print tolower($0)}')
   # Location for certs, configs, etc. to be stored
@@ -44,7 +47,7 @@ if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[
   # User's KUBECONFIG file
   USER_KUBECONFIG="$KUBE_CONFIG_DIR/config"
 
-  CONTEXTS=($(kubectl config get-contexts --kubeconfig=$KUBECONFIG -o name))
+  CONTEXTS=("$(kubectl config get-contexts --kubeconfig="$KUBECONFIG" -o name)")
   for context in "${CONTEXTS[@]}"; do
     kubectl config use-context "$context"
     KUBE_CLUSTER_NAME="$(kubectl config view --kubeconfig="$KUBECONFIG" -o jsonpath='{.clusters[0].name}')"
@@ -62,8 +65,9 @@ if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[
     # If client certificate signing request does not exist: create and apply
     if [[ ! -f "$USER_CLIENT_CSR" ]]; then
       export USERNAME
+      export ORG
       envsubst <"$PRIVATE_KEY_TEMPLATE" | cfssl genkey - | cfssljson -bare "${USER_CLIENT_CSR%.*}"
-      cat <<EOF | kubectl $ACTION --kubeconfig="$KUBECONFIG" -f -
+      cat <<EOF | kubectl "$ACTION" --kubeconfig="$KUBECONFIG" -f -
     apiVersion: certificates.k8s.io/v1beta1
     kind: CertificateSigningRequest
     metadata:
@@ -90,7 +94,7 @@ EOF
     kubectl config set-context "$USER_NAMESPACE" --cluster="$KUBE_CLUSTER_NAME" --namespace="$USER_NAMESPACE" --user="$USERNAME-$KUBE_CLUSTER_NAME" --kubeconfig="$USER_KUBECONFIG"
 
     # Manage users cluster namespace
-    cat <<EOF | kubectl $ACTION --kubeconfig="$KUBECONFIG" -f -
+    cat <<EOF | kubectl "$ACTION" --kubeconfig="$KUBECONFIG" -f -
   apiVersion: v1
   kind: Namespace
   metadata:
@@ -118,6 +122,6 @@ EOF
   done
 
 else
-  echo "Ensure to pass -a ACTION -d CONFIG_DIR -k KUBECONFIG -t PRIVATE_KEY_TEMPLATE -u USERNAME"
+  printf "Ensure to pass -a ACTION -d CONFIG_DIR -k KUBECONFIG -t PRIVATE_KEY_TEMPLATE -u USERNAME"
   exit 1
 fi
