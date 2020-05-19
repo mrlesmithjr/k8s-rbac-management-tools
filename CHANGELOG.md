@@ -1,3 +1,12 @@
+commit 1fe291ae2135efd8fe32ea478dbd1d6b4e3ee3d0
+Author: Larry Smith Jr <mrlesmithjr@gmail.com>
+Date:   Tue May 19 15:03:39 2020 -0400
+
+    Updated/added RBAC config for each user
+    
+    This will facilitate the ability to apply each user's bindings for
+    rbac-manager.
+
 commit 5478d5492e160f05305441bd669187e17df66fe5
 Author: Larry Smith Jr <mrlesmithjr@gmail.com>
 Date:   Tue May 19 15:03:25 2020 -0400

@@ -24,6 +24,24 @@ git submodule update --remote --init --recursive
 
 ## Creating Users
 
+### Usage
+
+```bash
+sh scripts/create_kube_users.sh -h
+Usage:
+      create_kube_users.sh -a ACTION -d CONFIG_DIR -k KUBECONFIG -o ORG -t PRIVATE_KEY_TEMPLATE -u USERNAME
+
+      		-a	Action (apply|delete)
+      		-d	Directory to store configs
+      		-h	Display help
+      		-k	Path to KUBECONFIG
+      		-o	Org name for SSL cert
+      		-t	Path to PRIVATE_KEY_TEMPLATE
+      		-u	USERNAME to create
+```
+
+### Example
+
 ```bash
 sh create_kube_users.sh -a apply -d ../KUBE_CONFIGS -k /Users/larrysmithjr/.kube/config -o TEST -t private_key_template.json -u "$(whoami)"
 ```
