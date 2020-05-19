@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+# set -x
 set -e
 
 SCRIPT_NAME="$(basename $0)"
@@ -37,7 +37,7 @@ if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[
   # Convert to lowercase as Kubernetes requires namespaces, etc. to be lowercase
   USERNAME=$(echo "$USERNAME" | awk '{print tolower($0)}')
   # Location for certs, configs, etc. to be stored
-  KUBE_CONFIG_DIR="$CONFIG_DIR/$USERNAME/.kube"
+  KUBE_CONFIG_DIR="$CONFIG_DIR/$USERNAME"
 
   # Create Kube config directory if it doesn't exist
   if [[ ! -d "$KUBE_CONFIG_DIR" ]]; then
@@ -47,7 +47,7 @@ if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[
   # User's KUBECONFIG file
   USER_KUBECONFIG="$KUBE_CONFIG_DIR/config"
 
-  CONTEXTS=("$(kubectl config get-contexts --kubeconfig="$KUBECONFIG" -o name)")
+  CONTEXTS=($(kubectl config get-contexts --kubeconfig="$KUBECONFIG" -o name))
   for context in "${CONTEXTS[@]}"; do
     kubectl config use-context "$context"
     KUBE_CLUSTER_NAME="$(kubectl config view --kubeconfig="$KUBECONFIG" -o jsonpath='{.clusters[0].name}')"
@@ -101,24 +101,21 @@ EOF
     name: $USER_NAMESPACE
 EOF
 
-    # Use rbac-manager? - https://fairwindsops.github.io/rbac-manager/
-    # kubectl apply -f https://raw.githubusercontent.com/FairwindsOps/rbac-manager/master/deploy/all.yaml
-    #     # Manage users admin role for their namespace
-    #     cat <<EOF | kubectl $ACTION --kubeconfig="$KUBECONFIG_ENV" -f -
-    # apiVersion: rbac.authorization.k8s.io/v1
-    # kind: RoleBinding
-    # metadata:
-    #   name: $USERNAME-admin
-    #   namespace: $USER_NAMESPACE
-    # roleRef:
-    #   apiGroup: rbac.authorization.k8s.io
-    #   kind: ClusterRole
-    #   name: admin
-    # subjects:
-    # - apiGroup: rbac.authorization.k8s.io
-    #   kind: User
-    #   name: $USERNAME
-    # EOF
+    cat <<EOF >"$KUBE_CONFIG_DIR"/"$USERNAME"-"$KUBE_CLUSTER_NAME"-rbac-access.yaml
+# RBACDefinition for cluster: $KUBE_CLUSTER_NAME
+apiVersion: rbacmanager.reactiveops.io/v1beta1
+kind: RBACDefinition
+metadata:
+    name: $USERNAME-access
+rbacBindings:
+- name: $USERNAME
+  subjects:
+  - kind: User
+    name: $USERNAME
+  roleBindings:
+  - namespace: $USER_NAMESPACE
+    clusterRole: admin
+EOF
   done
 
 else
