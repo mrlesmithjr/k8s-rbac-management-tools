@@ -11,6 +11,13 @@ Because submodules are heavily used here, make sure to clone this repo by:
 git clone https://github.com/mrlesmithjr/k8s-rbac-management-tools.git --recursive
 ```
 
+## Requirements
+
+The following requirements are needed:
+
+- [jq](https://github.com/stedolan/jq/wiki/Installation)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+
 ## Utils
 
 In the [utils](utils/) directory you will find a collection of useful Git

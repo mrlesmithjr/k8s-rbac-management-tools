@@ -1,3 +1,11 @@
+commit 5b1862a86f1d207f3d4972a0a2d97dc1bfdb53a7
+Author: Larry Smith Jr <mrlesmithjr@gmail.com>
+Date:   Wed May 20 01:18:24 2020 -0400
+
+    Cleaning up script code
+    
+    Cleaned up script based on shellcheck linting.
+
 commit 29ae35a6d8b74f399a6c74a0e6f29c37eba47b66
 Author: Larry Smith Jr <mrlesmithjr@gmail.com>
 Date:   Tue May 19 17:31:55 2020 -0400

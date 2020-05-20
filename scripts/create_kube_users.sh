@@ -47,12 +47,25 @@ if [[ $ACTION != "" ]] && [[ $KUBECONFIG != "" ]] && [[ $USERNAME != "" ]] && [[
   # User's KUBECONFIG file
   USER_KUBECONFIG="$KUBE_CONFIG_DIR/config"
 
-  CONTEXTS=($(kubectl config get-contexts --kubeconfig="$KUBECONFIG" -o name))
-  for context in "${CONTEXTS[@]}"; do
-    kubectl config use-context "$context"
-    KUBE_CLUSTER_NAME="$(kubectl config view --kubeconfig="$KUBECONFIG" -o jsonpath='{.clusters[0].name}')"
-    KUBE_CLUSTER_SERVER="$(kubectl config view --kubeconfig="$KUBECONFIG" -o jsonpath='{.clusters[0].cluster.server}')"
+  CONTEXTS=$(kubectl config view --kubeconfig="$KUBECONFIG" -o json | jq '.contexts')
+  CLUSTERS=$(kubectl config view --kubeconfig="$KUBECONFIG" -o json | jq '.clusters')
+  for context in $(echo "${CONTEXTS}" | jq -r '.[] | @base64'); do
+    _jq() {
+      echo "$context" | base64 --decode | jq -r "${1}"
+    }
+    # Use context name
+    kubectl config use-context "$(_jq '.name')"
+    # Get cluster name from context
+    KUBE_CLUSTER_NAME=$(_jq '.context.cluster')
+    # Export cluster name in order for jq to access the environment variable
+    export KUBE_CLUSTER_NAME
+    # Get cluster server for context used
+    KUBE_CLUSTER_SERVER=$(echo "$CLUSTERS" | jq '.[]|select(.name==env.KUBE_CLUSTER_NAME)|.cluster.server')
+    # Strip quotes from cluster server
+    KUBE_CLUSTER_SERVER="$(echo "$KUBE_CLUSTER_SERVER" | tr -d '"')"
+    # Define cluster cert
     KUBE_CLUSTER_CA_CERT="$KUBE_CONFIG_DIR/$KUBE_CLUSTER_NAME-ca.pem"
+
     # Get cluster certificate if it does not exist and save it
     if [[ ! -f $KUBE_CLUSTER_CA_CERT ]]; then
       kubectl config view --kubeconfig="$KUBECONFIG" -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' --raw | base64 --decode - >"$KUBE_CLUSTER_CA_CERT"
