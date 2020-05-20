@@ -1,3 +1,18 @@
+commit 29ae35a6d8b74f399a6c74a0e6f29c37eba47b66
+Author: Larry Smith Jr <mrlesmithjr@gmail.com>
+Date:   Tue May 19 17:31:55 2020 -0400
+
+    Deleted original rbac-access manifest
+    
+    We now generate these per user to simplify each user's initial bindings.
+    This will likely change over time of course. But for now this will work.
+
+commit e2f1c936ab89ad78f478297701bc6100f74c346d
+Author: Larry Smith Jr <mrlesmithjr@gmail.com>
+Date:   Tue May 19 15:07:27 2020 -0400
+
+    Updated example usage
+
 commit 1fe291ae2135efd8fe32ea478dbd1d6b4e3ee3d0
 Author: Larry Smith Jr <mrlesmithjr@gmail.com>
 Date:   Tue May 19 15:03:39 2020 -0400

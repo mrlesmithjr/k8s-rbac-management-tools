@@ -9,16 +9,16 @@ while getopts ":a:d:k:o:t:u:h" arg; do
   a) ACTION=$OPTARG ;;
   d) CONFIG_DIR=$OPTARG ;;
   h)
-    echo "Usage:"
-    echo "      $SCRIPT_NAME -a ACTION -d CONFIG_DIR -k KUBECONFIG -o ORG -t PRIVATE_KEY_TEMPLATE -u USERNAME"
-    echo ""
-    echo "      \t\t-a\tAction (apply|delete)"
-    echo "      \t\t-d\tDirectory to store configs"
-    echo "      \t\t-h\tDisplay help"
-    echo "      \t\t-k\tPath to KUBECONFIG"
-    echo "      \t\t-o\tOrg name for SSL cert"
-    echo "      \t\t-t\tPath to PRIVATE_KEY_TEMPLATE"
-    echo "      \t\t-u\tUSERNAME to create"
+    printf "Usage:\n"
+    printf "%s -a ACTION -d CONFIG_DIR -k KUBECONFIG -o ORG -t PRIVATE_KEY_TEMPLATE -u USERNAME\n" "$SCRIPT_NAME"
+    printf "\n"
+    printf "\t\t-a\tAction (apply|delete)\n"
+    printf "\t\t-d\tDirectory to store configs\n"
+    printf "\t\t-h\tDisplay help\n"
+    printf "\t\t-k\tPath to KUBECONFIG\n"
+    printf "\t\t-o\tOrg name for SSL cert\n"
+    printf "\t\t-t\tPath to PRIVATE_KEY_TEMPLATE\n"
+    printf "\t\t-u\tUSERNAME to create\n"
     exit 0
     ;;
   k) KUBECONFIG=$OPTARG ;;
