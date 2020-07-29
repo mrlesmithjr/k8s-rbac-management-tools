@@ -121,12 +121,20 @@ kind: RBACDefinition
 metadata:
     name: $USERNAME-access
 rbacBindings:
+- name: cluster-admins
+  subjects:
+    - kind: User
+      name: $USERNAME
+  clusterRoleBindings:
+    - clusterRole: cluster-admin
 - name: $USERNAME
   subjects:
   - kind: User
     name: $USERNAME
   roleBindings:
   - namespace: $USER_NAMESPACE
+    clusterRole: admin
+  - namespace: kube-system
     clusterRole: admin
 EOF
   done
